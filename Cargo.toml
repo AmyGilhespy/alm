@@ -22,5 +22,7 @@ categories = [
 repository = "https://github.com/AmyGilhespy/alml"
 
 [dependencies]
+clap = { version = "4.6.0", features = ["derive"] }
 pest = "2.8.6"
 pest_derive = "2.8.6"
+thiserror = "2.0.18"

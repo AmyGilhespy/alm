@@ -1,8 +1,11 @@
 // Custom whitespace that does NOT include newlines
-WHITESPACE = { (" " | "\t")+ }
+OMITTED_WHITESPACE = _{ (" " | "\t")+ }
+WHITESPACE = { OMITTED_WHITESPACE }
+OMITTED_NEWLINE = _{ "\n" | "\r\n" | "\r" }
+NEWLINE = { OMITTED_NEWLINE }
 
 // The document is a sequence of blocks separated by blank lines
-document = {
+document = ${
     SOI ~
     frontmatter?
     ~
@@ -17,11 +20,11 @@ blank_line = {
 }
 
 frontmatter = {
-    "===" ~ (NEWLINE+ ~ frontmatter_line)* ~ NEWLINE+ ~ "..." ~ NEWLINE
+    "===" ~ (OMITTED_NEWLINE+ ~ frontmatter_line)* ~ OMITTED_NEWLINE+ ~ "..." ~ OMITTED_NEWLINE
 }
 
 frontmatter_line = {
-    (!("..."? ~ NEWLINE) ~ ANY) ~ (!NEWLINE ~ ANY)*
+    (!("..."? ~ OMITTED_NEWLINE) ~ ANY) ~ (!OMITTED_NEWLINE ~ ANY)*
 }
 
 block = {
@@ -35,14 +38,39 @@ block = {
 }
 
 heading = {
-    (heading_marker) ~ (WHITESPACE? ~ inline+) ~ NEWLINE
+    (h1 | h2 | h3 | h4 | h5 | h6) ~ NEWLINE
 }
 
-heading_marker = {
-    "#" ~ (("#" ~ ("#" ~ ("#" ~ ("#" ~ "#"?)?)?)?) | heading_number)?
+h1 = { ("#1" | "#") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ (h1_inner) }
+h2 = { ("#2" | "##") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ (h2_inner) }
+h3 = { ("#3" | "###") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ (h3_inner) }
+h4 = { ("#4" | "####") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ (h4_inner) }
+h5 = { ("#5" | "#####") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ (h5_inner) }
+h6 = { ("#6" | "######") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ (h6_inner) }
+
+h1_inner = {
+    inline+
 }
 
-heading_number = { "1" | "2" | "3" | "4" | "5" | "6" }
+h2_inner = {
+    inline+
+}
+
+h3_inner = {
+    inline+
+}
+
+h4_inner = {
+    inline+
+}
+
+h5_inner = {
+    inline+
+}
+
+h6_inner = {
+    inline+
+}
 
 hr = { "--" ~ "-"+ }
 
@@ -73,11 +101,11 @@ blockquote = {
 }
 
 blockquote_line = {
-    blockquote_marker ~ (WHITESPACE? ~ inline+)
+    blockquote_marker ~ (OMITTED_WHITESPACE? ~ inline+)
 }
 
 blockquote_marker = {
-    ">" ~ WHITESPACE?
+    ">" ~ OMITTED_WHITESPACE?
 }
 
 unordered_list = {
@@ -85,7 +113,7 @@ unordered_list = {
 }
 
 unordered_list_item = {
-    unordered_list_marker ~ (WHITESPACE? ~ inline+)
+    unordered_list_marker ~ (OMITTED_WHITESPACE? ~ inline+)
 }
 
 unordered_list_marker = {
@@ -97,7 +125,7 @@ ordered_list = {
 }
 
 ordered_list_item = {
-    ordered_list_marker ~ (WHITESPACE? ~ inline+) ~ NEWLINE
+    ordered_list_marker ~ (OMITTED_WHITESPACE? ~ inline+) ~ NEWLINE
 }
 
 ordered_list_marker = {
@@ -145,15 +173,27 @@ spoiler = {
 }
 
 code_span = {
-    "`" ~ (!"`" ~ ANY)* ~ "`"
+    "`" ~ code_span_inner ~ "`"
+}
+
+code_span_inner = {
+    (!"`" ~ ANY)*
 }
 
 superscript = {
-    "^(" ~ (~")^" ~ ANY)+ ~ ")^"
+    "^(" ~ superscript_inner ~ ")^"
+}
+
+superscript_inner = {
+    (!")^" ~ ANY)+
 }
 
 subscript = {
-    "^v(" ~ (~")v" ~ ANY)+ ~ ")v"
+    "^v(" ~ subscript_inner ~ ")v"
+}
+
+subscript_inner = {
+    (!")v" ~ ANY)+
 }
 
 // Links: ((text|url))
@@ -184,20 +224,20 @@ image_url = {
 
 // Color: %(#c0ffee) ... %()
 color = {
-    "%(" ~ color_code? ~ ")"
+    "%(" ~ color_code ~ ")"
 }
 
 color_code = {
-    (!")" ~ ANY)+
+    (!")" ~ ANY)*
 }
 
 // Font size: %=123.0= ... %==
 font_size = {
-    "%=" ~ font_size_number? ~ "="
+    "%=" ~ font_size_number ~ "="
 }
 
 font_size_number = {
-    ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT*)?
+    (ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT*)?)?
 }
 
 // Variable substitution: {{foo}}
@@ -228,5 +268,3 @@ link_start = { "((" }
 image_start = { "!((" }
 color_start = { "%(" }
 font_size_start = { "%=" }
-
-NEWLINE = { "\n" | "\r\n" | "\r" }
