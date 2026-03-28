@@ -1,5 +1,5 @@
-use pest::Parser;
 use pest::iterators::Pairs;
+use pest::Parser;
 use pest_derive::Parser;
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -241,16 +241,15 @@ fn f(pairs: Pairs<'_, Rule>, x: &str) -> Result<String, pest::error::Error<Rule>
 				});
 			}
 			Rule::spoiler => {
-				// TODO
 				o.push_str(match x {
-					"Godot" => "[b]",
-					"Html" => "<b>",
+					"Godot" => "[fgcolor=black]",
+					"Html" => "<details><summary>Spoiler</summary>",
 					_ => panic!(),
 				});
 				o.push_str(f(p.into_inner(), x)?.as_str());
 				o.push_str(match x {
-					"Godot" => "[/b]",
-					"Html" => "</b>",
+					"Godot" => "[/fgcolor]",
+					"Html" => "</details>",
 					_ => panic!(),
 				});
 			}
@@ -294,19 +293,19 @@ fn f(pairs: Pairs<'_, Rule>, x: &str) -> Result<String, pest::error::Error<Rule>
 				});
 			}
 			Rule::link => {
-				// TODO
+				let text_url = parse_link_or_img(p.into_inner());
 				o.push_str(match x {
 					"Godot" => "[url=",
 					"Html" => "<a href=\">",
 					_ => panic!(),
 				});
-				o.push_str(p.as_str());
+				o.push_str(text_url.1.as_str());
 				o.push_str(match x {
 					"Godot" => "]",
 					"Html" => "\">",
 					_ => panic!(),
 				});
-				o.push_str(p.as_str());
+				o.push_str(text_url.0.as_str());
 				o.push_str(match x {
 					"Godot" => "[/url]",
 					"Html" => "</a>",
@@ -314,19 +313,17 @@ fn f(pairs: Pairs<'_, Rule>, x: &str) -> Result<String, pest::error::Error<Rule>
 				});
 			}
 			Rule::image => {
-				// TODO
+				let text_url = parse_link_or_img(p.into_inner());
 				o.push_str(match x {
 					"Godot" => "[img]",
-					"Html" => "<img alt=\"",
+					"Html" => "<img src=\"",
 					_ => panic!(),
 				});
-				o.push_str(p.as_str());
-				o.push_str(match x {
-					"Godot" => "",
-					"Html" => "\" src=\"",
-					_ => panic!(),
-				});
-				o.push_str(p.as_str());
+				o.push_str(text_url.1.as_str());
+				if x == "Html" {
+					o.push_str("\" alt=\"");
+					o.push_str(text_url.0.as_str());
+				}
 				o.push_str(match x {
 					"Godot" => "[/img]",
 					"Html" => "\"/>",
@@ -361,4 +358,24 @@ fn f(pairs: Pairs<'_, Rule>, x: &str) -> Result<String, pest::error::Error<Rule>
 	}
 
 	Ok(o)
+}
+
+fn parse_link_or_img(pairs: Pairs<'_, Rule>) -> (String, String) {
+	let mut text = "".to_owned();
+	let mut url = "".to_owned();
+	for p in pairs.into_iter() {
+		match p.as_rule() {
+			Rule::link | Rule::image => {
+				return parse_link_or_img(p.into_inner());
+			}
+			Rule::link_text | Rule::image_alt => {
+				text = p.as_str().to_owned();
+			}
+			Rule::link_url | Rule::image_url => {
+				url = p.as_str().to_owned();
+			}
+			_ => {}
+		}
+	}
+	return (text, url);
 }
