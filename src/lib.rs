@@ -361,8 +361,8 @@ fn f(pairs: Pairs<'_, Rule>, x: &str) -> Result<String, pest::error::Error<Rule>
 }
 
 fn parse_link_or_img(pairs: Pairs<'_, Rule>) -> (String, String) {
-	let mut text = "".to_owned();
-	let mut url = "".to_owned();
+	let mut text = String::new();
+	let mut url = String::new();
 	for p in pairs.into_iter() {
 		match p.as_rule() {
 			Rule::link | Rule::image => {
