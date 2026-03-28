@@ -1,0 +1,26 @@
+[[bin]]
+name = "alml"
+path = "src/main.rs"
+
+[lib]
+name = "alml"
+path = "src/lib.rs"
+
+[package]
+name = "alml"
+version = "0.1.0"
+edition = "2024"
+description = "Amy's Lightweight Markup Language"
+license = "MIT OR Apache-2.0"
+authors = ["Amy Gilhespy <amyogilhespy@gmail.com>"]
+categories = [
+    "parser-implementations",
+    "parsing",
+    "text-processing",
+    "compilers",
+]
+repository = "https://github.com/AmyGilhespy/alml"
+
+[dependencies]
+pest = "2.8.6"
+pest_derive = "2.8.6"

@@ -1,0 +1,232 @@
+// Custom whitespace that does NOT include newlines
+WHITESPACE = { (" " | "\t")+ }
+
+// The document is a sequence of blocks separated by blank lines
+document = {
+    SOI ~
+    frontmatter?
+    ~
+    blank_line*
+    ~
+    (block ~ blank_line*)*
+    ~ EOI
+}
+
+blank_line = {
+    (WHITESPACE? ~ NEWLINE)+
+}
+
+frontmatter = {
+    "===" ~ (NEWLINE+ ~ frontmatter_line)* ~ NEWLINE+ ~ "..." ~ NEWLINE
+}
+
+frontmatter_line = {
+    (!("..."? ~ NEWLINE) ~ ANY) ~ (!NEWLINE ~ ANY)*
+}
+
+block = {
+    heading
+    | hr
+    | code_fence
+    | blockquote
+    | unordered_list
+    | ordered_list
+    | paragraph
+}
+
+heading = {
+    (heading_marker) ~ (WHITESPACE? ~ inline+) ~ NEWLINE
+}
+
+heading_marker = {
+    "#" ~ (("#" ~ ("#" ~ ("#" ~ ("#" ~ "#"?)?)?)?) | heading_number)?
+}
+
+heading_number = { "1" | "2" | "3" | "4" | "5" | "6" }
+
+hr = { "--" ~ "-"+ }
+
+code_fence = {
+    fence_open ~
+    (code_line? ~ (NEWLINE ~ code_line)*)?
+    ~ fence_close
+}
+
+fence_open = {
+    "```" ~ (code_info)? ~ NEWLINE
+}
+
+code_info = {
+    !("\n") ~ (!NEWLINE ~ ANY)*
+}
+
+code_line = {
+    !("```") ~ (!NEWLINE ~ ANY)*
+}
+
+fence_close = {
+    "```"
+}
+
+blockquote = {
+    (blockquote_line ~ (NEWLINE ~ blockquote_line)*)
+}
+
+blockquote_line = {
+    blockquote_marker ~ (WHITESPACE? ~ inline+)
+}
+
+blockquote_marker = {
+    ">" ~ WHITESPACE?
+}
+
+unordered_list = {
+    (unordered_list_item ~ (NEWLINE ~ unordered_list_item)*)
+}
+
+unordered_list_item = {
+    unordered_list_marker ~ (WHITESPACE? ~ inline+)
+}
+
+unordered_list_marker = {
+    "*" | "-" | "+"
+}
+
+ordered_list = {
+    (ordered_list_item ~ (NEWLINE ~ ordered_list_item)*)
+}
+
+ordered_list_item = {
+    ordered_list_marker ~ (WHITESPACE? ~ inline+) ~ NEWLINE
+}
+
+ordered_list_marker = {
+    ASCII_DIGIT+ ~ "."
+}
+
+// Paragraphs: any block of inline text not captured by other block rules
+paragraph = {
+    (inline+ ~ (NEWLINE ~ inline+)*) ~ NEWLINE
+}
+
+inline = {
+    bold
+    | italic
+    | underline
+    | strikethrough
+    | spoiler
+    | code_span
+    | superscript
+    | subscript
+    | link
+    | image
+    | color
+    | plain_text
+}
+
+bold = {
+    "**" ~ inline ~ "**"
+}
+
+italic = {
+    "/" ~ inline ~ "/"
+}
+
+underline = {
+    "_" ~ inline ~ "_"
+}
+
+strikethrough = {
+    "~" ~ inline ~ "~"
+}
+
+spoiler = {
+    "||" ~ inline ~ "||"
+}
+
+code_span = {
+    "`" ~ (!"`" ~ ANY)* ~ "`"
+}
+
+superscript = {
+    "^(" ~ (~")^" ~ ANY)+ ~ ")^"
+}
+
+subscript = {
+    "^v(" ~ (~")v" ~ ANY)+ ~ ")v"
+}
+
+// Links: ((text|url))
+link = {
+    "((" ~ link_text ~ "|" ~ link_url ~ "))"
+}
+
+link_text = {
+    (!("|" | "))") ~ ANY)+
+}
+
+link_url = {
+    (!"))" ~ ANY)+
+}
+
+// Images: !((alt|url))
+image = {
+    "!((" ~ (image_alt ~ "|")? ~ image_url ~ "))"
+}
+
+image_alt = {
+    (!("|" | "))") ~ ANY)+
+}
+
+image_url = {
+    (!"))" ~ ANY)+
+}
+
+// Color: %(#c0ffee) ... %()
+color = {
+    "%(" ~ color_code? ~ ")"
+}
+
+color_code = {
+    (!")" ~ ANY)+
+}
+
+// Font size: %=123.0= ... %==
+font_size = {
+    "%=" ~ font_size_number? ~ "="
+}
+
+font_size_number = {
+    ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT*)?
+}
+
+// Variable substitution: {{foo}}
+
+variable_substitution = {
+    "{{" ~ variable_substitution_identifier ~ "}}"
+}
+
+variable_substitution_identifier = {
+    (!"}}" ~ ANY)+
+}
+
+// Plain text - matches any characters not consumed by other inline rules
+plain_text = {
+    (!(bold_start | italic_start | underline_start | strikethrough_start | spoiler_start | code_span_start | superscript_start | subscript_start | link_start | image_start | color_start | font_size_start | NEWLINE) ~ ANY)+
+}
+
+// Helper rules for inline lookahead
+bold_start = { "**" }
+italic_start = { "/" }
+underline_start = { "_" }
+strikethrough_start = { "~" }
+spoiler_start = { "||" }
+code_span_start = { "`" }
+superscript_start = { "^(" }
+subscript_start = { "^v(" }
+link_start = { "((" }
+image_start = { "!((" }
+color_start = { "%(" }
+font_size_start = { "%=" }
+
+NEWLINE = { "\n" | "\r\n" | "\r" }
