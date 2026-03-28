@@ -19,7 +19,7 @@ categories = [
     "text-processing",
     "compilers",
 ]
-repository = "https://github.com/AmyGilhespy/alml"
+repository = "https://github.com/AmyGilhespy/alm"
 
 [dependencies]
 clap = { version = "4.6.0", features = ["derive"] }
