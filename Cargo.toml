@@ -1,16 +1,16 @@
 [[bin]]
-name = "alml"
+name = "alm"
 path = "src/main.rs"
 
 [lib]
-name = "alml"
+name = "alm"
 path = "src/lib.rs"
 
 [package]
-name = "alml"
+name = "alm"
 version = "0.1.0"
 edition = "2024"
-description = "Amy's Lightweight Markup Language"
+description = "Amy's Lightweight Markup language"
 license = "MIT OR Apache-2.0"
 authors = ["Amy Gilhespy <amyogilhespy@gmail.com>"]
 categories = [

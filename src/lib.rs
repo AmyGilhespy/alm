@@ -1,21 +1,30 @@
-extern crate pest;
-#[macro_use]
-extern crate pest_derive;
-
+use pest::Parser;
 use pest::iterators::Pairs;
+use pest_derive::Parser;
+
+#[derive(Clone, Copy, Debug, Default)]
+pub enum OutputFormat {
+	#[default]
+	Html,
+	Godot,
+}
+
+pub struct Alm;
+
+impl Alm {
+	pub fn parse(string: &str, format: OutputFormat) -> Result<String, pest::error::Error<Rule>> {
+		let pairs = AlmParser::parse(Rule::document, string)?;
+		match format {
+			OutputFormat::Html => f(pairs, "Html"),
+			OutputFormat::Godot => f(pairs, "Godot"),
+		}
+	}
+}
 
 #[allow(dead_code)]
 #[derive(Parser)]
-#[grammar = "grammars/alml.pest"]
-pub struct Alml;
-
-pub fn to_godot(pairs: Pairs<'_, Rule>) -> Result<String, pest::error::Error<Rule>> {
-	f(pairs, "Godot")
-}
-
-pub fn to_html(pairs: Pairs<'_, Rule>) -> Result<String, pest::error::Error<Rule>> {
-	f(pairs, "Html")
-}
+#[grammar = "grammars/alm.pest"]
+pub struct AlmParser;
 
 fn f(pairs: Pairs<'_, Rule>, x: &str) -> Result<String, pest::error::Error<Rule>> {
 	let mut o = String::new();

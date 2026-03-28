@@ -3,12 +3,12 @@ use std::{
 	io::{Read, Write},
 };
 
-use alml::{Alml, Rule, to_godot, to_html};
+use alm::{Alm, Rule};
 use clap::{Parser, Subcommand};
 use thiserror::Error;
 
 #[derive(Debug, Parser)]
-#[command(name = "alml")]
+#[command(name = "alm")]
 #[command(about = "Amy's Lightweight Markup Language", long_about = None)]
 struct Cli {
 	#[command(subcommand)]
@@ -45,20 +45,18 @@ pub enum AppError {
 }
 
 fn main() -> Result<(), AppError> {
-	use pest::Parser;
-
 	let args = Cli::parse();
 	let i;
 	let o;
 	let f;
 	match args.format {
 		OutputFormat::Godot { output, input } => {
-			f = "Godot";
+			f = alm::OutputFormat::Godot;
 			i = input;
 			o = output;
 		}
 		OutputFormat::Html { output, input } => {
-			f = "Html";
+			f = alm::OutputFormat::Html;
 			i = input;
 			o = output;
 		}
@@ -68,14 +66,7 @@ fn main() -> Result<(), AppError> {
 	let mut ifile = File::open(i)?;
 	let mut buf = String::new();
 	let _ = ifile.read_to_string(&mut buf)?;
-	let pairs = Alml::parse(Rule::document, buf.as_str())?;
-
-	let out = match f {
-		"Godot" => to_godot(pairs),
-		"Html" => to_html(pairs),
-		_ => panic!(),
-	}?;
-
+	let out = Alm::parse(buf.as_str(), f)?;
 	let mut ofile = OpenOptions::new()
 		.write(true)
 		.create(true)
