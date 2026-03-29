@@ -89,44 +89,84 @@ impl Alm {
 				| Rule::blockquote_marker
 				| Rule::EOI => {}
 				Rule::bold_on => {
-					self.bold = true;
-					o.push_str(match x {
-						"Godot" => "[b]",
-						"Html" => "<b>",
-						_ => panic!(),
-					});
+					if self.bold {
+						o.push_str(match x {
+							"Godot" => "[/b]",
+							"Html" => "</b>",
+							_ => panic!(),
+						});
+					} else {
+						self.bold = true;
+						o.push_str(match x {
+							"Godot" => "[b]",
+							"Html" => "<b>",
+							_ => panic!(),
+						});
+					}
 				}
 				Rule::italic_on => {
-					self.italic = true;
-					o.push_str(match x {
-						"Godot" => "[i]",
-						"Html" => "<i>",
-						_ => panic!(),
-					});
+					if self.italic {
+						o.push_str(match x {
+							"Godot" => "[/i]",
+							"Html" => "</i>",
+							_ => panic!(),
+						});
+					} else {
+						self.italic = true;
+						o.push_str(match x {
+							"Godot" => "[i]",
+							"Html" => "<i>",
+							_ => panic!(),
+						});
+					}
 				}
 				Rule::underline_on => {
-					self.underline = true;
-					o.push_str(match x {
-						"Godot" => "[u]",
-						"Html" => "<u>",
-						_ => panic!(),
-					});
+					if self.underline {
+						o.push_str(match x {
+							"Godot" => "[/u]",
+							"Html" => "</u>",
+							_ => panic!(),
+						});
+					} else {
+						self.underline = true;
+						o.push_str(match x {
+							"Godot" => "[u]",
+							"Html" => "<u>",
+							_ => panic!(),
+						});
+					}
 				}
 				Rule::strikethrough_on => {
-					self.strikethrough = true;
-					o.push_str(match x {
-						"Godot" => "[s]",
-						"Html" => "<s>",
-						_ => panic!(),
-					});
+					if self.strikethrough {
+						o.push_str(match x {
+							"Godot" => "[/s]",
+							"Html" => "</s>",
+							_ => panic!(),
+						});
+					} else {
+						self.strikethrough = true;
+						o.push_str(match x {
+							"Godot" => "[s]",
+							"Html" => "<s>",
+							_ => panic!(),
+						});
+					}
 				}
 				Rule::spoiler_on => {
-					self.spoiler = true;
-					o.push_str(match x {
-						"Godot" => "[fgcolor=black]",
-						"Html" => "<details><summary>Spoiler</summary>",
-						_ => panic!(),
-					});
+					if self.spoiler {
+						o.push_str(match x {
+							"Godot" => "[/fgcolor]",
+							"Html" => "</details>",
+							_ => panic!(),
+						});
+					} else {
+						self.spoiler = true;
+						o.push_str(match x {
+							"Godot" => "[fgcolor=black]",
+							"Html" => "<details><summary>Spoiler</summary>",
+							_ => panic!(),
+						});
+					}
 				}
 				Rule::bold_off => {
 					if self.bold {
