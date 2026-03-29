@@ -90,6 +90,7 @@ impl Alm {
 				| Rule::EOI => {}
 				Rule::bold_on => {
 					if self.bold {
+						self.bold = false;
 						o.push_str(match x {
 							"Godot" => "[/b]",
 							"Html" => "</b>",
@@ -106,6 +107,7 @@ impl Alm {
 				}
 				Rule::italic_on => {
 					if self.italic {
+						self.italic = false;
 						o.push_str(match x {
 							"Godot" => "[/i]",
 							"Html" => "</i>",
@@ -122,6 +124,7 @@ impl Alm {
 				}
 				Rule::underline_on => {
 					if self.underline {
+						self.underline = false;
 						o.push_str(match x {
 							"Godot" => "[/u]",
 							"Html" => "</u>",
@@ -138,6 +141,7 @@ impl Alm {
 				}
 				Rule::strikethrough_on => {
 					if self.strikethrough {
+						self.strikethrough = false;
 						o.push_str(match x {
 							"Godot" => "[/s]",
 							"Html" => "</s>",
@@ -154,6 +158,7 @@ impl Alm {
 				}
 				Rule::spoiler_on => {
 					if self.spoiler {
+						self.spoiler = false;
 						o.push_str(match x {
 							"Godot" => "[/fgcolor]",
 							"Html" => "</details>",
