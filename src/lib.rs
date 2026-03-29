@@ -1,5 +1,5 @@
-use pest::iterators::Pairs;
 use pest::Parser;
+use pest::iterators::Pairs;
 use pest_derive::Parser;
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -91,78 +91,78 @@ fn f(pairs: Pairs<'_, Rule>, x: &str) -> Result<String, pest::error::Error<Rule>
 			| Rule::EOI => {}
 			Rule::h1_inner => {
 				o.push_str(match x {
-					"Godot" => "[h1]",
+					"Godot" => "[font_size=32]",
 					"Html" => "<h1>",
 					_ => panic!(),
 				});
 				o.push_str(p.as_str());
 				o.push_str(match x {
-					"Godot" => "[/h1]",
+					"Godot" => "[/font_size]",
 					"Html" => "</h1>",
 					_ => panic!(),
 				});
 			}
 			Rule::h2_inner => {
 				o.push_str(match x {
-					"Godot" => "[h2]",
+					"Godot" => "[font_size=28]",
 					"Html" => "<h2>",
 					_ => panic!(),
 				});
 				o.push_str(p.as_str());
 				o.push_str(match x {
-					"Godot" => "[/h2]",
+					"Godot" => "[/font_size]",
 					"Html" => "</h2>",
 					_ => panic!(),
 				});
 			}
 			Rule::h3_inner => {
 				o.push_str(match x {
-					"Godot" => "[h3]",
+					"Godot" => "[font_size=24]",
 					"Html" => "<h3>",
 					_ => panic!(),
 				});
 				o.push_str(p.as_str());
 				o.push_str(match x {
-					"Godot" => "[/h3]",
+					"Godot" => "[/font_size]",
 					"Html" => "</h3>",
 					_ => panic!(),
 				});
 			}
 			Rule::h4_inner => {
 				o.push_str(match x {
-					"Godot" => "[h4]",
+					"Godot" => "[font_size=20]",
 					"Html" => "<h4>",
 					_ => panic!(),
 				});
 				o.push_str(p.as_str());
 				o.push_str(match x {
-					"Godot" => "[/h4]",
+					"Godot" => "[/font_size]",
 					"Html" => "</h4>",
 					_ => panic!(),
 				});
 			}
 			Rule::h5_inner => {
 				o.push_str(match x {
-					"Godot" => "[h5]",
+					"Godot" => "[font_size=16]",
 					"Html" => "<h5>",
 					_ => panic!(),
 				});
 				o.push_str(p.as_str());
 				o.push_str(match x {
-					"Godot" => "[/h5]",
+					"Godot" => "[/font_size]",
 					"Html" => "</h5>",
 					_ => panic!(),
 				});
 			}
 			Rule::h6_inner => {
 				o.push_str(match x {
-					"Godot" => "[h6]",
+					"Godot" => "[font_size=12]",
 					"Html" => "<h6>",
 					_ => panic!(),
 				});
 				o.push_str(p.as_str());
 				o.push_str(match x {
-					"Godot" => "[/h6]",
+					"Godot" => "[/font_size]",
 					"Html" => "</h6>",
 					_ => panic!(),
 				});
@@ -343,9 +343,9 @@ fn f(pairs: Pairs<'_, Rule>, x: &str) -> Result<String, pest::error::Error<Rule>
 			Rule::font_size_number => {
 				let str = p.as_str();
 				if str.is_empty() {
-					o.push_str("[/color]");
+					o.push_str("[/font_size]");
 				} else {
-					o.push_str("[color=");
+					o.push_str("[font_size=");
 					o.push_str(str);
 					o.push_str("]");
 				}
