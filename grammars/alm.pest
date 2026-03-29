@@ -9,14 +9,17 @@ document = ${
     SOI ~
     frontmatter?
     ~
-    blank_line*
+    (NEWLINE | WHITESPACE)*
     ~
-    (block ~ blank_line*)*
+    (
+        newline_separated_blocks_without_the_delimiting_newlines
+        ~ (
+            NEWLINE+ ~ (OMITTED_WHITESPACE ~ NEWLINE+)*
+                ~ newline_separated_blocks_without_the_delimiting_newlines
+        )*
+    )
+    ~ (NEWLINE+ ~ (OMITTED_WHITESPACE ~ NEWLINE+)*)?
     ~ EOI
-}
-
-blank_line = {
-    (WHITESPACE? ~ NEWLINE)+
 }
 
 frontmatter = {
@@ -27,49 +30,52 @@ frontmatter_line = {
     (!("..."? ~ OMITTED_NEWLINE) ~ ANY) ~ (!OMITTED_NEWLINE ~ ANY)*
 }
 
-block = {
-    heading
+newline_separated_blocks_without_the_delimiting_newlines = {
+    (non_line_block ~ NEWLINE+)* ~ (non_line_block | line) ~ &(NEWLINE | EOI)
+}
+
+non_line_block = {
+    (heading
     | hr
     | code_fence
     | blockquote
     | unordered_list
-    | ordered_list
-    | paragraph
+    | ordered_list)
 }
 
 heading = {
-    (h1 | h2 | h3 | h4 | h5 | h6) ~ NEWLINE
+    h1 | h2 | h3 | h4 | h5 | h6
 }
 
-h1 = { ("#1" | "#") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ (h1_inner) }
-h2 = { ("#2" | "##") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ (h2_inner) }
-h3 = { ("#3" | "###") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ (h3_inner) }
-h4 = { ("#4" | "####") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ (h4_inner) }
-h5 = { ("#5" | "#####") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ (h5_inner) }
-h6 = { ("#6" | "######") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ (h6_inner) }
+h1 = { ("#1" | "#") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ h1_inner }
+h2 = { ("#2" | "##") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ h2_inner }
+h3 = { ("#3" | "###") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ h3_inner }
+h4 = { ("#4" | "####") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ h4_inner }
+h5 = { ("#5" | "#####") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ h5_inner }
+h6 = { ("#6" | "######") ~ (OMITTED_WHITESPACE)* ~ !(OMITTED_WHITESPACE) ~ h6_inner }
 
 h1_inner = {
-    inline+
+    (!NEWLINE ~ ANY)+
 }
 
 h2_inner = {
-    inline+
+    (!NEWLINE ~ ANY)+
 }
 
 h3_inner = {
-    inline+
+    (!NEWLINE ~ ANY)+
 }
 
 h4_inner = {
-    inline+
+    (!NEWLINE ~ ANY)+
 }
 
 h5_inner = {
-    inline+
+    (!NEWLINE ~ ANY)+
 }
 
 h6_inner = {
-    inline+
+    (!NEWLINE ~ ANY)+
 }
 
 hr = { "--" ~ "-"+ }
@@ -101,7 +107,7 @@ blockquote = {
 }
 
 blockquote_line = {
-    blockquote_marker ~ (OMITTED_WHITESPACE? ~ inline+)
+    blockquote_marker ~ (OMITTED_WHITESPACE? ~ line)
 }
 
 blockquote_marker = {
@@ -113,7 +119,7 @@ unordered_list = {
 }
 
 unordered_list_item = {
-    unordered_list_marker ~ (OMITTED_WHITESPACE? ~ inline+)
+    unordered_list_marker ~ (OMITTED_WHITESPACE? ~ line)
 }
 
 unordered_list_marker = {
@@ -125,24 +131,31 @@ ordered_list = {
 }
 
 ordered_list_item = {
-    ordered_list_marker ~ (OMITTED_WHITESPACE? ~ inline+) ~ NEWLINE
+    ordered_list_marker ~ (OMITTED_WHITESPACE? ~ line)
 }
 
 ordered_list_marker = {
     ASCII_DIGIT+ ~ "."
 }
 
-// Paragraphs: any block of inline text not captured by other block rules
-paragraph = {
-    (inline+ ~ (NEWLINE ~ inline+)*) ~ NEWLINE
+line = {
+    words ~ WHITESPACE? ~ &(NEWLINE | EOI)
+}
+
+words = {
+    inline ~ (WHITESPACE ~ inline)*
 }
 
 inline = {
-    bold
-    | italic
-    | underline
-    | strikethrough
-    | spoiler
+    inline_left_word_boundary ~ inline_no_word_boundary*
+}
+
+inline_left_word_boundary = {
+    bold_on
+    | italic_on
+    | underline_on
+    | strikethrough_on
+    | spoiler_on
     | code_span
     | superscript
     | subscript
@@ -152,24 +165,59 @@ inline = {
     | plain_text
 }
 
-bold = {
-    "**" ~ inline ~ "**"
+inline_no_word_boundary = {
+    bold_off
+    | italic_off
+    | underline_off
+    | strikethrough_off
+    | spoiler_off
+    | code_span
+    | superscript
+    | subscript
+    | link
+    | image
+    | color
+    | plain_text
 }
 
-italic = {
-    "/" ~ inline ~ "/"
+bold_on = {
+    "**" ~ !"*"
 }
 
-underline = {
-    "_" ~ inline ~ "_"
+italic_on = {
+    "/" ~ !"/"
 }
 
-strikethrough = {
-    "~" ~ inline ~ "~"
+underline_on = {
+    "_" ~ !"_"
 }
 
-spoiler = {
-    "||" ~ inline ~ "||"
+strikethrough_on = {
+    "~" ~ !"~"
+}
+
+spoiler_on = {
+    "||" ~ !"|"
+}
+
+bold_off = {
+    "**" ~ !"*"
+}
+
+italic_off = {
+    "/" ~ !"/"
+}
+
+underline_off = {
+    "_" ~ !"_"
+}
+
+strikethrough_off = {
+    "~" ~ !"~"
+}
+
+spoiler_off = {
+    "||" ~ !"|"
 }
 
 code_span = {
@@ -177,7 +225,7 @@ code_span = {
 }
 
 code_span_inner = {
-    (!"`" ~ ANY)*
+    (!"`" ~ ANY)+
 }
 
 superscript = {
@@ -252,19 +300,5 @@ variable_substitution_identifier = {
 
 // Plain text - matches any characters not consumed by other inline rules
 plain_text = {
-    (!(bold_start | italic_start | underline_start | strikethrough_start | spoiler_start | code_span_start | superscript_start | subscript_start | link_start | image_start | color_start | font_size_start | NEWLINE) ~ ANY)+
+    !(NEWLINE | WHITESPACE) ~ ANY
 }
-
-// Helper rules for inline lookahead
-bold_start = { "**" }
-italic_start = { "/" }
-underline_start = { "_" }
-strikethrough_start = { "~" }
-spoiler_start = { "||" }
-code_span_start = { "`" }
-superscript_start = { "^(" }
-subscript_start = { "^v(" }
-link_start = { "((" }
-image_start = { "!((" }
-color_start = { "%(" }
-font_size_start = { "%=" }

@@ -1,3 +1,3 @@
 # My heading
 
-Hello, world.  This is **bold**, /italic/, _underline_, ~strike-through~, `code`, and %(red)red%() text.
+Hello, world.  This is **bold**, /italic/ and _underline_, **bold with /italic/ and _underline_**, ~strike-through~, `code`, and %(red)red%() text.
