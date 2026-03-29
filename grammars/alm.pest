@@ -201,23 +201,23 @@ spoiler_on = {
 }
 
 bold_off = {
-    "**" ~ !"*"
+    "**" ~ !("*" | ASCII_ALPHA | ASCII_DIGIT | "_" | "-" | ">")
 }
 
 italic_off = {
-    "/" ~ !"/"
+    "/" ~ !("/" | ASCII_ALPHA | ASCII_DIGIT | "_" | "-" | ">")
 }
 
 underline_off = {
-    "_" ~ !"_"
+    "_" ~ !("_" | ASCII_ALPHA | ASCII_DIGIT | "_" | "-" | ">")
 }
 
 strikethrough_off = {
-    "~" ~ !"~"
+    "~" ~ !("~" | ASCII_ALPHA | ASCII_DIGIT | "_" | "-" | ">")
 }
 
 spoiler_off = {
-    "||" ~ !"|"
+    "||" ~ !("|" | ASCII_ALPHA | ASCII_DIGIT | "_" | "-" | ">")
 }
 
 code_span = {
